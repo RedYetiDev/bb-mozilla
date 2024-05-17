@@ -1,0 +1,132 @@
+name: Rust
+
+on:
+  # push:
+  #   branches:
+  #     - main
+  #     - 'releases/**'
+  pull_request:
+    branches:
+      - main
+      - 'releases/**'
+
+# env:
+#   CARGO_TERM_COLOR: always
+#   RUST_VERSION: 1.67.1
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    # services:
+    #   postgres:
+    #     image: postgres:14
+    #     env:
+    #       POSTGRES_USER: db_user
+    #       POSTGRES_PASSWORD: db_password
+    #       POSTGRES_DB: cjms
+    #     ports:
+    #       - 5432:5432
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    # - uses: actions/cache@v3
+    #   with:
+    #     path: |
+    #       ~/.cargo/bin/
+    #       ~/.cargo/registry/index/
+    #       ~/.cargo/registry/cache/
+    #       ~/.cargo/git/db/
+    #       target/
+    #     key: ${{ runner.os }}-cargo-test-${{ hashFiles('**/Cargo.lock') }}
+    # - name: Mark whether cache loaded
+    #   run: |
+    #     if [[ -d "target" ]]; then
+    #       echo "cache_loaded=true" >> $GITHUB_ENV
+    #     else
+    #       echo "cache_loaded=false" >> $GITHUB_ENV
+    #     fi
+    - name: Git checkout (reattach HEAD to Head Ref)
+      run: git checkout "$(echo ${{ github.head_ref }} | sed -E 's|refs/[a-zA-Z]+/||')"
+      if: github.head_ref != ''
+  #   - name: Git checkout (reattach HEAD to Ref)
+  #     run: git checkout "$(echo ${{ github.ref }} | sed -E 's|refs/[a-zA-Z]+/||')"
+  #     if: github.head_ref == ''
+  #   - name: Copy settings file
+  #     run: cp settings.yaml.example settings.yaml
+  #   - name: Install rust
+  #     run: rustup toolchain install $RUST_VERSION && rustup default $RUST_VERSION
+  #   - name: Print rust version
+  #     run: cargo --version
+  #   - name: Install llvm-cov
+  #     run: rustup toolchain install $RUST_VERSION --component llvm-tools-preview && cargo install cargo-llvm-cov --force
+  #   - name: Install nextest
+  #     run: curl -LsSf https://get.nexte.st/latest/linux | tar zxf - -C ${CARGO_HOME:-~/.cargo}/bin
+  #   - name: Run tests inc. coverage
+  #     run: cargo llvm-cov nextest --lcov --output-path lcov.info
+  #   - name: Upload coverage to Codecov
+  #     uses: codecov/codecov-action@v2
+  #     with:
+  #       files: lcov.info
+  #       verbose: true
+  # lint:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #   - uses: actions/cache@v3
+  #     with:
+  #       path: |
+  #         ~/.cargo/bin/
+  #         ~/.cargo/registry/index/
+  #         ~/.cargo/registry/cache/
+  #         ~/.cargo/git/db/
+  #         target/
+  #       key: ${{ runner.os }}-cargo-lint-${{ hashFiles('**/Cargo.lock') }}
+  #   - name: Install rust
+  #     run: rustup toolchain install $RUST_VERSION && rustup default $RUST_VERSION && rustup component add clippy
+  #   - name: Print rust version
+  #     run: cargo --version
+  #   - name: Lint check
+  #     run: cargo clippy --all-targets --all-features -- -D warnings
+  #   - name: Check if offline migrations haven't been submitted. If this step fails run `cargo sqlx prepare -- --lib` and submit `sqlx-data.json`.
+  #     if: ${{ failure() }}
+  #     run: cargo install sqlx-cli && cargo sqlx prepare  --database-url="postgres://not_a_database" --check -- --lib
+  # format:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #   - name: Install rust
+  #     run: rustup toolchain install $RUST_VERSION && rustup default $RUST_VERSION && rustup component add rustfmt
+  #   - name: Print rust version
+  #     run: cargo --version
+  #   - name: Format check
+  #     run: cargo fmt -- --check
+  # audit:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #   - uses: actions/cache@v3
+  #     with:
+  #       path: |
+  #         ~/.cargo/bin/
+  #         ~/.cargo/registry/index/
+  #         ~/.cargo/registry/cache/
+  #         ~/.cargo/git/db/
+  #         target/
+  #       key: ${{ runner.os }}-cargo-audit-${{ hashFiles('**/Cargo.lock') }}
+  #   - name: Mark whether cache loaded
+  #     run: |
+  #       if [[ -d "target" ]]; then
+  #         echo "cache_loaded=true" >> $GITHUB_ENV
+  #       else
+  #         echo "cache_loaded=false" >> $GITHUB_ENV
+  #       fi
+  #   - name: Install rust
+  #     run: rustup toolchain install $RUST_VERSION && rustup default $RUST_VERSION
+  #   - name: Print rust version
+  #     run: cargo --version
+  #   - name: Setup audit
+  #     run: cargo install cargo-audit
+  #     if: env.cache_loaded == 'false'
+  #   - name: Run audit
+  #     run: cargo audit
